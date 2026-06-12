@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marketing Email Copywriter</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --forest: #21500e;
+    --green: #3A6B30;
+    --sage: #F7F1E8;
+    --brown: #3D2E1E;
+    --gold: #bb8306;
+    --light-green: #E8D5B0;
+    --muted: #7A6A5A;
+    --white: #ffffff;
+    --parchment: #F7F1E8;
+    --wheat: #E8D5B0;
+    --terracotta: #C4704A;
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--parchment);
+    min-height: 100vh;
+    padding: 32px 16px;
+    color: #2E1A0A;
+  }
+
+  .container { max-width: 660px; margin: 0 auto; }
+
+  /* Header */
+  .page-header {
+    margin-bottom: 28px;
+    border-bottom: 3px solid var(--gold);
+    padding-bottom: 16px;
+  }
+  .page-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 600;
+    font-size: 28px;
+    color: var(--forest);
+    margin: 0;
+    letter-spacing: -0.3px;
+  }
+  .page-header p {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  /* Cards */
+  .card {
+    background: #fff;
+    border-radius: 14px;
+    padding: 28px;
+    box-shadow: 0 2px 12px rgba(33,80,14,0.08);
+    margin-bottom: 20px;
+    border-top: 4px solid var(--green);
+  }
+  .card h2 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 400;
+    font-size: 17px;
+    color: var(--forest);
+    margin: 0 0 20px 0;
+  }
+  .card-divider { border: none; border-top: 1px solid var(--wheat); margin: 20px 0; }
+
+  .prompt-card {
+    background: #fdf5e4;
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 2px 12px rgba(33,80,14,0.08);
+    border-top: 4px solid var(--gold);
+    margin-bottom: 20px;
+  }
+  .prompt-card h2 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 400;
+    font-size: 17px;
+    color: #2E1A0A;
+    margin: 0;
+  }
+
+  /* Fields */
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--forest);
+    margin-bottom: 3px;
+  }
+  .field .helper {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 5px;
+    margin-top: 0;
+  }
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    border: 1px solid var(--wheat);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-family: 'Nunito', sans-serif;
+    background: #fff;
+    color: #2E1A0A;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus { border-color: var(--green); }
+  .field textarea { resize: vertical; }
+
+  /* Prompt output */
+  .prompt-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .btn-row { display: flex; gap: 8px; }
+  .btn-copy {
+    font-size: 13px; padding: 7px 16px; border-radius: 8px;
+    border: 1px solid var(--gold); background: #fff;
+    cursor: pointer; font-weight: 700; color: var(--forest);
+    font-family: 'Nunito', sans-serif; transition: background 0.2s;
+  }
+  .btn-copy:hover { background: #fdf5e4; }
+  .btn-copy.copied { background: var(--green); color: #fff; border-color: var(--green); }
+  .btn-open {
+    font-size: 13px; padding: 7px 16px; border-radius: 8px;
+    border: none; background: var(--forest); color: #fff;
+    cursor: pointer; font-weight: 700; font-family: 'Nunito', sans-serif;
+    text-decoration: none; display: inline-flex; align-items: center;
+    transition: background 0.2s;
+  }
+  .btn-open:hover { background: var(--green); }
+
+  .prompt-output {
+    font-size: 12px; line-height: 1.7; white-space: pre-wrap;
+    background: #fff; border-radius: 8px; padding: 16px;
+    max-height: 380px; overflow-y: auto; margin: 0;
+    color: #2E1A0A; border: 1px solid var(--wheat);
+    font-family: 'Nunito', sans-serif;
+  }
+  .prompt-hint { font-size: 11px; color: var(--muted); margin-top: 10px; }
+
+  /* Hidden */
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="page-header">
+    <h1>Marketing Email Copywriter</h1>
+    <p>Fill out the form to generate your AI prompt, then paste it into Claude to draft your email.</p>
+  </div>
+
+  <div class="card">
+    <h2>Campaign Details</h2>
+
+    <div class="field">
+      <label>Email Name</label>
+      <p class="helper">A short internal label for this email.</p>
+      <input type="text" id="emailName" placeholder="e.g. June Webinar Invite" />
+    </div>
+
+    <div class="field">
+      <label>Email Type *</label>
+      <select id="emailType" onchange="onTypeChange()">
+        <option value="">Select Email Type...</option>
+        <option>Webinar invitation</option>
+        <option>Event invitation</option>
+        <option>Post-event drip campaign (webinar)</option>
+        <option>Content eblast</option>
+        <option>Announcement</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Funnel Stage *</label>
+      <select id="funnelStage" onchange="updatePrompt()">
+        <option value="">Select Funnel Stage...</option>
+        <option>TOFU</option>
+        <option>MOFU</option>
+        <option>BOFU</option>
+        <option>Customer</option>
+        <option>All / Generic</option>
+      </select>
+    </div>
+
+    <hr class="card-divider hidden" id="typeDivider">
+    <h2 class="hidden" id="typeHeading"></h2>
+
+    <!-- WEBINAR fields -->
+    <div id="fields-webinar" class="hidden">
+      <div class="field">
+        <label>Webinar Date *</label>
+        <input type="date" id="webinarDate" oninput="updatePrompt()" />
+      </div>
+      <div class="field">
+        <label>Primary Job of This Webinar *</label>
+        <p class="helper">What is this webinar primarily meant to do? E.g. educate, build trust, move prospects closer to a decision.</p>
+        <input type="text" id="webinarJob" oninput="updatePrompt()" />
+      </div>
+      <div class="field">
+        <label>What Makes This Webinar Distinct? *</label>
+        <p class="helper">E.g. new product showcase, real customer story, original data, live walkthrough.</p>
+        <textarea rows="2" id="webinarDistinct" oninput="updatePrompt()"></textarea>
+      </div>
+      <div class="field">
+        <label>Primary Objection This Email Must Overcome *</label>
+        <p class="helper">What hesitation might stop someone from registering?</p>
+        <select id="webinarObjection" onchange="updatePrompt(); toggleOther('webinarObjection','webinarObjectionOther')">
+          <option value="">Select...</option>
+          <option>I don't have time for this</option>
+          <option>I've seen this before / nothing new</option>
+          <option>This topic isn't relevant to me</option>
+          <option>I'm skeptical this will be practical</option>
+          <option>I don't trust AI / new technology</option>
+          <option>Other</option>
+        </select>
+        <input type="text" id="webinarObjectionOther" class="hidden" style="margin-top:8px;" placeholder="Describe the objection in the reader's words" oninput="updatePrompt()" />
+      </div>
+      <div class="field">
+        <label>Where Does This Webinar Fit in the Broader Journey? *</label>
+        <p class="helper">E.g. first introduction, early trust-building, deeper evaluation.</p>
+        <input type="text" id="webinarJourney" oninput="updatePrompt()" />
+      </div>
+      <div class="field">
+        <label>If Attendees Remember One Thing, What Should It Be? *</label>
+        <p class="helper">The single message they should walk away with.</p>
+        <input type="text" id="webinarOneThing" oninput="updatePrompt()" />
+      </div>
+      <div class="field">
+        <label>Registration / Landing Page Link *</label>
+        <p class="helper">Paste the full URL.</p>
+        <input type="text" id="webinarRegLink" oninput="updatePrompt()" />
+      </div>
+      <div class="field">
+        <label>Paste Content or Key Excerpts (Optional)</label>
+        <p class="helper">Paste any additional copy as context — landing pages, internal briefs, etc.</p>
+        <textarea rows="4" id="webinarCtx" oninput="updatePrompt()"></textarea>
+      </div>
+    </div>
+
+    <!-- EVENT fields -->
+    <div id="fields-event" class="hidden">
+      <div class="field">
+        <label>Event Date *</label>
+        <input type="date" id="eventDate" oninput="updatePrompt()" />
+      </div>
+      <div class="field">
+        <label>Conference / Event Details *</label>
+        <p class="helper">Additional details about the event and any other elements that will be promoted.</p>
+        <textarea rows="3" id="eventDetails" oninput="updatePrompt()"></textarea>
+      </div>
+      <div class="field">
+        <label>What Makes This Event Fun/Attractive? *</label>
+        <p class="helper">E.g. networking, hands-on demos, keynote speakers.</p>
+        <textarea rows="2" id="eventFun" oninput="updatePrompt()"></textarea>
+      </div>
+      <div class="field">
+        <label>What Are You Promoting at This Event? *</label>
+        <p class="helper">E.g. booth presence, speaking session, product demo.</p>
+        <input type="text" id="eventPromo" oninput="updatePrompt()" />
+      </div>
+      <div class="field">
+        <label>Registration / Landing Page Link *</label>
+        <p class="helper">Paste the full URL.</p>
+        <input type="text" id="eventRegLink" oninput="updatePrompt()" />
+      </div>
+      <div class="field">
+        <label>Paste Content or Key Excerpts (Optional)</label>
+        <p class="helper">Paste any additional copy as context.</p>
+        <textarea rows="4" id="eventCtx" oninput="updatePrompt()"></textarea>
+      </div>
+    </div>
+
+    <!-- DRIP fields -->
+    <div id="fields-drip" class="hidden">
+      <div class="field">
+        <label>Primary Goal of the Drip Campaign *</label>
+        <p class="helper">E.g. education over time, demo consideration, reinforcing brand credibility.</p>
+        <input type="text" id="dripGoal" oninput="updatePrompt()" />
+      </div>
+      <div class="field">
+        <label>Key Takeaway to Reinforce Across Both Emails *</label>
+        <p class="helper">The core message that should stay consistent across the sequence.</p>
+        <input type="text" id="dripTakeaway" oninput="updatePrompt()" />
+      </div>
+      <div class="field">
+        <label>Link to Webinar Blog Recap *</label>
+        <p class="helper">Paste the full URL. This will be the primary CTA in Email 1.</p>
+        <input type="text" id="dripRecapLink" oninput="updatePrompt()" />
+      </div>
+      <div class="field">
+        <label>Link to Secondary Content *</label>
+        <p class="helper">Paste the full URL. This will be the primary CTA in Email 2.</p>
+        <input type="text" id="dripSecondaryLink" oninput="updatePrompt()" />
+      </div>
+      <div class="field">
+        <label>Include a Demo Request CTA in Email 2?</label>
+        <p class="helper">Choose "Yes" only if a demo ask feels appropriate at this stage.</p>
+        <select id="dripIncludeDemo" onchange="updatePrompt()">
+          <option value="">Select...</option>
+          <option>Yes</option>
+          <option>No</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Paste Content or Key Excerpts (Optional)</label>
+        <p class="helper">Paste any additional copy as context.</p>
+        <textarea rows="4" id="dripCtx" oninput="updatePrompt()"></textarea>
+      </div>
+    </div>
+
+    <!-- EBLAST fields -->
+    <div id="fields-eblast" class="hidden">
+      <div class="field">
+        <label>Primary Content Being Promoted *</label>
+        <p class="helper">Name or describe the content. E.g. "2025 B2B SaaS AI Benchmark Report."</p>
+        <input type="text" id="eblastContent" oninput="updatePrompt()" />
+      </div>
+      <div class="field">
+        <label>Content Link *</label>
+        <p class="helper">Paste the full URL.</p>
+        <input type="text" id="eblastLink" oninput="updatePrompt()" />
+      </div>
+      <div class="field">
+        <label>Core Insight or Argument *</label>
+        <p class="helper">What is the main idea this content puts forward? Go deeper than the headline.</p>
+        <textarea rows="3" id="eblastInsight" oninput="updatePrompt()"></textarea>
+      </div>
+      <div class="field">
+        <label>Paste Content or Key Excerpts (Optional)</label>
+        <p class="helper">Paste any additional copy as context.</p>
+        <textarea rows="4" id="eblastCtx" oninput="updatePrompt()"></textarea>
+      </div>
+    </div>
+
+    <!-- ANNOUNCEMENT fields -->
+    <div id="fields-announcement" class="hidden">
+      <div class="field">
+        <label>Type of Announcement *</label>
+        <select id="annType" onchange="updatePrompt()">
+          <option value="">Select...</option>
+          <option>Product Launch or Update</option>
+          <option>New Partnership</option>
+          <option>Funding or Company Milestone</option>
+          <option>Customer or Market Expansion</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Who This Is Most Relevant For *</label>
+        <p class="helper">E.g. enterprise leaders, compliance teams, current customers.</p>
+        <input type="text" id="annRelevantFor" oninput="updatePrompt()" />
+      </div>
+      <div class="field">
+        <label>Single Most Important Reader Takeaway *</label>
+        <p class="helper">If someone skims the email, what is the one thing they should understand?</p>
+        <input type="text" id="annTakeaway" oninput="updatePrompt()" />
+      </div>
+      <div class="field">
+        <label>Why Should the Reader Care Right Now? *</label>
+        <p class="helper">Explain the urgency or relevance in plain language.</p>
+        <textarea rows="3" id="annWhyNow" oninput="updatePrompt()"></textarea>
+      </div>
+      <div class="field">
+        <label>CTA Link *</label>
+        <p class="helper">Paste the full URL.</p>
+        <input type="text" id="annCTALink" oninput="updatePrompt()" />
+      </div>
+      <div class="field">
+        <label>Paste Content or Key Excerpts (Optional)</label>
+        <p class="helper">Paste any additional copy as context.</p>
+        <textarea rows="4" id="annCtx" oninput="updatePrompt()"></textarea>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Prompt output -->
+  <div class="prompt-card hidden" id="promptCard">
+    <div class="prompt-header">
+      <h2>Your Prompt</h2>
+      <div class="btn-row">
+        <button class="btn-copy" id="copyBtn" onclick="copyPrompt()">Copy</button>
+        <a class="btn-open" href="https://claude.ai" target="_blank">Open Claude →</a>
+      </div>
+    </div>
+    <pre class="prompt-output" id="promptOutput"></pre>
+    <p class="prompt-hint">Copy the prompt and paste it into Claude to generate your email draft.</p>
+  </div>
+
+</div>
+
+<script>
+const typeFieldMap = {
+  'Webinar invitation': 'webinar',
+  'Event invitation': 'event',
+  'Post-event drip campaign (webinar)': 'drip',
+  'Content eblast': 'eblast',
+  'Announcement': 'announcement',
+};
+
+function onTypeChange() {
+  const type = document.getElementById('emailType').value;
+  const key = typeFieldMap[type];
+
+  // Hide all field groups
+  Object.values(typeFieldMap).forEach(k => {
+    document.getElementById('fields-' + k).classList.add('hidden');
+  });
+
+  const divider = document.getElementById('typeDivider');
+  const heading = document.getElementById('typeHeading');
+
+  if (key) {
+    document.getElementById('fields-' + key).classList.remove('hidden');
+    divider.classList.remove('hidden');
+    heading.classList.remove('hidden');
+    heading.textContent = type + ' Details';
+  } else {
+    divider.classList.add('hidden');
+    heading.classList.add('hidden');
+  }
+
+  updatePrompt();
+}
+
+function toggleOther(selectId, otherId) {
+  const val = document.getElementById(selectId).value;
+  const other = document.getElementById(otherId);
+  if (val === 'Other') {
+    other.classList.remove('hidden');
+  } else {
+    other.classList.add('hidden');
+  }
+}
+
+function val(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
+function fmtDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+}
+
+function buildBlock(type) {
+  const ctx = val('webinarCtx') || val('eventCtx') || val('dripCtx') || val('eblastCtx') || val('annCtx');
+  const ctxBlock = ctx ? '\nAdditional context (use as reference only):\n' + ctx : '';
+
+  if (type === 'Webinar invitation') {
+    const objection = val('webinarObjection') === 'Other' ? val('webinarObjectionOther') : val('webinarObjection');
+    return [
+      '**Webinar details (generate a 3-email series: initial invite, reminder, final reminder):**',
+      '- Webinar date (for subject lines): ' + fmtDate(val('webinarDate')),
+      '- Primary job of the webinar: ' + val('webinarJob'),
+      '- What makes it distinct: ' + val('webinarDistinct'),
+      '- Primary objection to overcome: ' + objection,
+      '- Journey fit: ' + val('webinarJourney'),
+      '- One thing attendees should remember: ' + val('webinarOneThing'),
+      '- Registration link: ' + val('webinarRegLink'),
+    ].join('\n') + ctxBlock;
+  }
+
+  if (type === 'Event invitation') {
+    return [
+      '**Event details (generate a 3-email series: initial invite, reminder, final reminder):**',
+      '- Event date (for subject lines): ' + fmtDate(val('eventDate')),
+      '- Conference / event details & other promotional elements: ' + val('eventDetails'),
+      '- What makes this event fun/attractive: ' + val('eventFun'),
+      '- What we are promoting at this event: ' + val('eventPromo'),
+      '- Registration / landing page link: ' + val('eventRegLink'),
+      '',
+      'SPECIAL INSTRUCTIONS:',
+      '- Subject lines must begin with the event date formatted like: Event Date: [date]',
+      '- Emails should primarily promote attending the event, but also mention any other included promotional elements if provided.',
+    ].join('\n') + ctxBlock;
+  }
+
+  if (type === 'Post-event drip campaign (webinar)') {
+    return [
+      '**Post-event drip inputs (generate a 2-email sequence sent weeks after the webinar):**',
+      '- Primary goal of the drip campaign: ' + val('dripGoal'),
+      '- Key takeaway to reinforce across both emails: ' + val('dripTakeaway'),
+      '- Webinar blog recap link (Email 1 CTA): ' + val('dripRecapLink'),
+      '- Secondary content link (Email 2 CTA): ' + val('dripSecondaryLink'),
+      '- Include a demo request CTA in Email 2?: ' + val('dripIncludeDemo'),
+    ].join('\n') + ctxBlock;
+  }
+
+  if (type === 'Content eblast') {
+    return [
+      '**Content eblast inputs (single-send spotlighting one piece of content):**',
+      '- Primary content being promoted: ' + val('eblastContent'),
+      '- Content link: ' + val('eblastLink'),
+      '- Core insight or argument: ' + val('eblastInsight'),
+      '',
+      'Note: Always include a clearly labeled Key Takeaways section near the bottom. Synthesize 3-5 takeaways from the core insight and any additional context. Single goal: drive engagement with the promoted content.',
+    ].join('\n') + ctxBlock;
+  }
+
+  if (type === 'Announcement') {
+    return [
+      '**Announcement inputs:**',
+      '- Type of announcement: ' + val('annType'),
+      '- Who it\'s most relevant for: ' + val('annRelevantFor'),
+      '- Single most important reader takeaway: ' + val('annTakeaway'),
+      '- Why the reader should care right now: ' + val('annWhyNow'),
+      '- CTA link: ' + val('annCTALink'),
+    ].join('\n') + ctxBlock;
+  }
+
+  return '';
+}
+
+function buildPrompt() {
+  const type = val('emailType');
+  const stage = val('funnelStage');
+  if (!type) return '';
+
+  return [
+    'You are an expert B2B marketing email copywriter.',
+    '',
+    'Write warm, confident, value-led marketing email copy. Keep it credible and avoid hype, exaggerated claims, or generic AI phrasing. Avoid emojis and excessive bolding.',
+    '',
+    '**Email classification:**',
+    '- Email type: ' + type,
+    '- Funnel stage: ' + stage,
+    '',
+    '**Objective & inputs:**',
+    buildBlock(type),
+    '',
+    '**Global requirements:**',
+    '- One clear goal and one primary CTA per email (unless the email type explicitly requires a sequence)',
+    '- Concise, scannable structure',
+    '- Calm, confident tone',
+    '- Provide 2-3 subject line options per email',
+    '- Do not invent links or claims',
+    '',
+    '**Execution rules:**',
+    '- If this is a sequence, generate all required emails in order (Email 1, Email 2, Email 3)',
+    '- Assume all copy will receive brand/content review before send',
+    '',
+    'Draft the email(s) now.',
+  ].join('\n');
+}
+
+function updatePrompt() {
+  const prompt = buildPrompt();
+  const card = document.getElementById('promptCard');
+  const output = document.getElementById('promptOutput');
+
+  if (prompt) {
+    output.textContent = prompt;
+    card.classList.remove('hidden');
+  } else {
+    card.classList.add('hidden');
+  }
+}
+
+function copyPrompt() {
+  const prompt = document.getElementById('promptOutput').textContent;
+  const btn = document.getElementById('copyBtn');
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = prompt;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showCopied(btn);
+  } catch {
+    navigator.clipboard?.writeText(prompt).then(() => showCopied(btn));
+  }
+}
+
+function showCopied(btn) {
+  btn.textContent = 'Copied!';
+  btn.classList.add('copied');
+  setTimeout(() => {
+    btn.textContent = 'Copy';
+    btn.classList.remove('copied');
+  }, 2000);
+}
+</script>
+</body>
+</html>
