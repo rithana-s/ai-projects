@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subject Line Grader</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest: #21500e;
+    --green: #457226;
+    --sage: #f4f6da;
+    --brown: #4b2a05;
+    --gold: #bb8306;
+    --light-green: #d4e8c2;
+    --muted: #8a9e75;
+    --white: #ffffff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--forest);
+    min-height: 100vh;
+    color: var(--white);
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 80% 10%, rgba(187,131,6,0.1) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 5% 90%, rgba(69,114,38,0.2) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+  }
+
+  .header { margin-bottom: 40px; }
+
+  .header-eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--gold);
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 6vw, 58px);
+    font-weight: 800;
+    line-height: 1.0;
+    color: var(--white);
+    letter-spacing: -0.02em;
+  }
+
+  h1 span { color: var(--gold); }
+
+  .header-sub {
+    margin-top: 16px;
+    font-size: 15px;
+    color: var(--muted);
+    font-weight: 300;
+    line-height: 1.6;
+    max-width: 520px;
+  }
+
+  /* Audience toggle */
+  .audience-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .toggle-btn {
+    flex: 1;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1.5px solid rgba(244,246,218,0.1);
+    background: rgba(244,246,218,0.04);
+    color: var(--muted);
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .toggle-btn .toggle-icon { font-size: 18px; }
+  .toggle-btn .toggle-sub { font-size: 10px; color: rgba(138,158,117,0.6); font-weight: 300; letter-spacing: 0.05em; text-transform: uppercase; }
+  .toggle-btn:hover { border-color: rgba(244,246,218,0.2); color: var(--white); }
+
+  .toggle-btn.active-prospect {
+    background: rgba(187,131,6,0.12);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+  .toggle-btn.active-prospect .toggle-sub { color: rgba(187,131,6,0.6); }
+
+  .toggle-btn.active-customer {
+    background: rgba(69,114,38,0.2);
+    border-color: var(--green);
+    color: var(--light-green);
+  }
+  .toggle-btn.active-customer .toggle-sub { color: rgba(212,232,194,0.6); }
+
+  /* Input card */
+  .input-card {
+    background: rgba(244,246,218,0.04);
+    border: 1px solid rgba(244,246,218,0.08);
+    border-radius: 20px;
+    padding: 32px;
+    backdrop-filter: blur(10px);
+    margin-bottom: 32px;
+    transition: border-color 0.3s;
+  }
+
+  .input-card.prospect { border-color: rgba(187,131,6,0.18); }
+  .input-card.customer { border-color: rgba(69,114,38,0.25); }
+
+  .input-label {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .input-wrapper { position: relative; }
+
+  #subjectInput {
+    width: 100%;
+    background: rgba(244,246,218,0.06);
+    border: 1.5px solid rgba(244,246,218,0.1);
+    border-radius: 12px;
+    padding: 16px 20px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    color: var(--white);
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    resize: none;
+    min-height: 64px;
+    line-height: 1.5;
+  }
+
+  #subjectInput::placeholder { color: rgba(138,158,117,0.5); }
+  #subjectInput:focus { border-color: var(--gold); background: rgba(187,131,6,0.06); }
+  #subjectInput.customer-focus:focus { border-color: var(--green); background: rgba(69,114,38,0.08); }
+
+  .char-count { position: absolute; bottom: 12px; right: 14px; font-size: 11px; color: var(--muted); }
+  .char-count.warn { color: #ff8a80; }
+
+  .grade-btn {
+    width: 100%;
+    margin-top: 16px;
+    padding: 16px 24px;
+    background: var(--gold);
+    color: var(--forest);
+    border: none;
+    border-radius: 12px;
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: transform 0.15s, background 0.15s, box-shadow 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .grade-btn.customer-btn { background: var(--green); color: var(--sage); }
+  .grade-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(187,131,6,0.3); background: #d49407; }
+  .grade-btn.customer-btn:hover:not(:disabled) { background: #3a6120; box-shadow: 0 8px 24px rgba(69,114,38,0.3); }
+  .grade-btn:active:not(:disabled) { transform: translateY(0); }
+  .grade-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Audience badge */
+  .audience-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .audience-badge.prospect { background: rgba(187,131,6,0.15); color: var(--gold); border: 1px solid rgba(187,131,6,0.3); }
+  .audience-badge.customer { background: rgba(69,114,38,0.2); color: var(--light-green); border: 1px solid rgba(69,114,38,0.4); }
+
+  /* Loading */
+  .loading { display: none; text-align: center; padding: 40px; color: var(--muted); }
+  .loading.active { display: block; }
+
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid rgba(187,131,6,0.2);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+  .spinner.customer { border-color: rgba(69,114,38,0.2); border-top-color: var(--green); }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .results { display: none; animation: fadeUp 0.4s ease forwards; }
+  .results.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Score hero */
+  .score-hero {
+    background: rgba(244,246,218,0.04);
+    border: 1px solid rgba(244,246,218,0.08);
+    border-radius: 20px;
+    padding: 36px 32px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    backdrop-filter: blur(10px);
+  }
+
+  .score-circle {
+    flex-shrink: 0;
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .score-circle svg { position: absolute; inset: 0; transform: rotate(-90deg); }
+  .score-circle svg circle { fill: none; stroke-width: 5; stroke-linecap: round; }
+  .score-bg { stroke: rgba(244,246,218,0.08); }
+  .score-fill { stroke: var(--gold); transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1); }
+  .score-fill.good { stroke: var(--green); }
+  .score-fill.great { stroke: #7FD18A; }
+  .score-fill.poor { stroke: #ff8a80; }
+
+  .score-number { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 800; color: white; position: relative; z-index: 1; line-height: 1; }
+  .score-label { font-size: 10px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; position: relative; z-index: 1; margin-top: 2px; }
+  .score-info { flex: 1; }
+  .score-grade { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .score-summary { font-size: 14px; color: var(--muted); line-height: 1.6; }
+
+  /* Dimensions */
+  .dimensions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  @media (max-width: 520px) { .dimensions { grid-template-columns: 1fr; } }
+
+  .dim-card {
+    background: rgba(244,246,218,0.04);
+    border: 1px solid rgba(244,246,218,0.07);
+    border-radius: 14px;
+    padding: 20px;
+    transition: border-color 0.2s;
+  }
+  .dim-card:hover { border-color: rgba(244,246,218,0.15); }
+
+  .dim-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .dim-name { font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .dim-score { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: white; }
+  .dim-bar-track { height: 4px; background: rgba(244,246,218,0.08); border-radius: 99px; overflow: hidden; margin-bottom: 10px; }
+  .dim-bar-fill { height: 100%; border-radius: 99px; background: var(--gold); transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+  .dim-bar-fill.green { background: var(--green); }
+  .dim-bar-fill.great { background: #7FD18A; }
+  .dim-bar-fill.pink { background: #ff8a80; }
+  .dim-note { font-size: 12px; color: var(--muted); line-height: 1.5; font-weight: 300; }
+
+  /* Rewrite card */
+  .rewrite-card {
+    background: linear-gradient(135deg, rgba(187,131,6,0.1) 0%, rgba(69,114,38,0.07) 100%);
+    border: 1px solid rgba(187,131,6,0.2);
+    border-radius: 20px;
+    padding: 28px 32px;
+    margin-bottom: 20px;
+  }
+  .rewrite-card.customer { background: linear-gradient(135deg, rgba(69,114,38,0.15) 0%, rgba(187,131,6,0.05) 100%); border-color: rgba(69,114,38,0.3); }
+
+  .rewrite-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .rewrite-label.customer { color: var(--light-green); }
+  .rewrite-label::before { content: '✦'; font-size: 10px; }
+
+  .rewrite-options { display: flex; flex-direction: column; gap: 10px; }
+
+  .rewrite-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    background: rgba(244,246,218,0.05);
+    border-radius: 10px;
+    border: 1px solid rgba(244,246,218,0.07);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .rewrite-option:hover { background: rgba(244,246,218,0.09); border-color: rgba(187,131,6,0.3); }
+  .rewrite-option.customer:hover { border-color: rgba(69,114,38,0.4); }
+
+  .rewrite-tag { flex-shrink: 0; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--forest); background: var(--gold); border-radius: 6px; padding: 3px 8px; margin-top: 1px; }
+  .rewrite-tag.green { background: var(--green); color: var(--sage); }
+  .rewrite-tag.brown { background: var(--brown); color: var(--sage); }
+
+  .rewrite-text { font-size: 14px; color: white; line-height: 1.5; }
+  .copy-hint { font-size: 10px; color: rgba(138,158,117,0.5); margin-top: 4px; }
+
+  /* Benchmark */
+  .benchmark-card {
+    background: rgba(244,246,218,0.03);
+    border: 1px solid rgba(244,246,218,0.07);
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    color: var(--muted);
+  }
+  .benchmark-stat { text-align: center; }
+  .benchmark-stat strong { display: block; font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: white; line-height: 1.1; margin-bottom: 2px; }
+  .benchmark-stat span { font-size: 11px; letter-spacing: 0.05em; text-transform: uppercase; }
+  .benchmark-divider { width: 1px; height: 40px; background: rgba(244,246,218,0.08); }
+  .benchmark-note { flex: 1; font-size: 13px; line-height: 1.6; }
+
+  /* Error */
+  .error-card { display: none; background: rgba(255,138,128,0.08); border: 1px solid rgba(255,138,128,0.2); border-radius: 14px; padding: 20px 24px; color: #ff8a80; font-size: 14px; margin-bottom: 20px; }
+  .error-card.active { display: block; }
+
+  .footer { margin-top: 48px; text-align: center; font-size: 11px; color: rgba(138,158,117,0.4); letter-spacing: 0.05em; }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--brown);
+    border: 1px solid rgba(244,246,218,0.1);
+    color: var(--sage);
+    padding: 10px 20px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 500;
+    transition: transform 0.3s ease;
+    z-index: 100;
+    pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <div class="header-eyebrow">Powered by Claude AI</div>
+    <h1>Subject Line<br><span>Grader</span></h1>
+    <p class="header-sub">Paste any B2B SaaS email subject line. Get an instant score, dimension breakdown, and rewrites — benchmarked against real industry data.</p>
+  </div>
+
+  <div class="audience-toggle">
+    <button class="toggle-btn active-prospect" id="prospectBtn" onclick="setAudience('prospect')">
+      <span class="toggle-icon">🎯</span>
+      <span class="toggle-label">Prospect</span>
+      <span class="toggle-sub">~23% avg OR · B2B SaaS</span>
+    </button>
+    <button class="toggle-btn" id="customerBtn" onclick="setAudience('customer')">
+      <span class="toggle-icon">🤝</span>
+      <span class="toggle-label">Customer</span>
+      <span class="toggle-sub">~35% avg OR · B2B SaaS</span>
+    </button>
+  </div>
+
+  <div class="input-card prospect" id="inputCard">
+    <label class="input-label" for="subjectInput">Your subject line</label>
+    <div class="input-wrapper">
+      <textarea id="subjectInput" placeholder="e.g. How leading SaaS teams cut onboarding time by 40%" rows="2"></textarea>
+      <span class="char-count" id="charCount">0</span>
+    </div>
+    <button class="grade-btn" id="gradeBtn" onclick="gradeSubject()">
+      <span>Grade this subject line</span>
+      <span>→</span>
+    </button>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="spinner" id="spinner"></div>
+    <p style="font-size:14px" id="loadingText">Analyzing against B2B SaaS prospect benchmarks…</p>
+  </div>
+
+  <div class="error-card" id="errorCard"></div>
+
+  <div class="results" id="results">
+    <div class="audience-badge prospect" id="audienceBadge">● Prospect Mode</div>
+
+    <div class="score-hero">
+      <div class="score-circle">
+        <svg viewBox="0 0 100 100" width="100" height="100">
+          <circle class="score-bg" cx="50" cy="50" r="44"/>
+          <circle class="score-fill" id="scoreArc" cx="50" cy="50" r="44" stroke-dasharray="276.46" stroke-dashoffset="276.46"/>
+        </svg>
+        <div class="score-number" id="scoreNum">—</div>
+        <div class="score-label">/ 100</div>
+      </div>
+      <div class="score-info">
+        <div class="score-grade" id="scoreGrade"></div>
+        <div class="score-summary" id="scoreSummary"></div>
+      </div>
+    </div>
+
+    <div class="benchmark-card">
+      <div class="benchmark-stat">
+        <strong id="benchmarkAvg">23%</strong>
+        <span id="benchmarkAvgLabel">industry avg OR</span>
+      </div>
+      <div class="benchmark-divider"></div>
+      <div class="benchmark-stat">
+        <strong id="benchmarkPredicted">—</strong>
+        <span>predicted range</span>
+      </div>
+      <div class="benchmark-divider"></div>
+      <div class="benchmark-note" id="benchmarkNote">Based on B2B SaaS industry benchmarks.</div>
+    </div>
+
+    <div class="dimensions" id="dimensions"></div>
+
+    <div class="rewrite-card" id="rewriteCard">
+      <div class="rewrite-label" id="rewriteLabel">Suggested rewrites</div>
+      <div class="rewrite-options" id="rewriteOptions"></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Benchmarks sourced from B2B SaaS industry data · 2025–2026 · Built with Claude Sonnet
+  </div>
+</div>
+
+<div class="toast" id="toast">Copied ✓</div>
+
+<script>
+let currentAudience = 'prospect';
+
+const PROSPECT_PROMPT = `You are an expert email marketing analyst specializing in B2B SaaS. You analyze subject lines for PROSPECT emails — sent to potential buyers who are not yet customers.
+
+B2B SaaS PROSPECT EMAIL BENCHMARKS (2025-2026 industry data):
+- Average open rate: ~23%
+- Warm leads (post-action, post-demo): 25–30%
+- Cold outreach: 15–18%
+
+HIGH-PERFORMING PROSPECT SUBJECT LINE PATTERNS:
+- Post-action follow-ups: "Here's the guide you requested" / "Thanks for attending — here's what's next"
+- Data-specific: "What 2,400 CMOs are doing differently in 2025"
+- Event confirmations and personal invites
+- Curiosity with specificity: "The real cost of [specific problem]"
+- Personalization + value: first name + clear benefit
+
+LOW-PERFORMING PATTERNS:
+- Vague re-introductions: "A quick note from [Company]"
+- Generic urgency: "Last chance", "Final reminder", "Don't miss out"
+- Buzzword-heavy: "Cutting-edge solution", "Revolutionize your workflow"
+- Bracket overload: [Webinar] [Reminder] [Final]
+- Weak questions: "Is your team ready for AI?"
+
+KEY RULES:
+- Specificity consistently outperforms vague curiosity
+- Post-action emails dramatically outperform cold outreach
+- Urgency language backfires — it signals desperation
+- Mobile truncation kicks in around 60 characters; keep critical info front-loaded
+- Audience: B2B buyers — ops leaders, marketing, RevOps, executives
+
+Respond ONLY with valid JSON. No markdown, no preamble.
+
+{
+  "score": <integer 0-100>,
+  "grade": "<Needs Work | Decent | Strong | Excellent>",
+  "summary": "<2 sentence punchy assessment>",
+  "predicted_open_rate": "<range like '18–24%'>",
+  "benchmark_note": "<one sentence vs 23% B2B SaaS prospect avg>",
+  "dimensions": [
+    { "name": "Clarity", "score": <0-10>, "note": "<1 sentence>" },
+    { "name": "Specificity", "score": <0-10>, "note": "<1 sentence>" },
+    { "name": "Curiosity", "score": <0-10>, "note": "<1 sentence>" },
+    { "name": "Mobile Length", "score": <0-10>, "note": "<1 sentence about char count>" },
+    { "name": "Spam Risk", "score": <0-10>, "note": "<1 sentence — 10 = no risk>" },
+    { "name": "Audience Fit", "score": <0-10>, "note": "<1 sentence for B2B buyers>" }
+  ],
+  "rewrites": [
+    { "label": "Direct", "text": "<rewrite 1>" },
+    { "label": "Curious", "text": "<rewrite 2>" },
+    { "label": "Post-Action", "text": "<rewrite 3 — framed as follow-up or confirmation>" }
+  ]
+}`;
+
+const CUSTOMER_PROMPT = `You are an expert email marketing analyst specializing in B2B SaaS. You analyze subject lines for CUSTOMER emails — sent to existing paying users of a SaaS product.
+
+B2B SaaS CUSTOMER EMAIL BENCHMARKS (2025-2026 industry data):
+- Average open rate: ~35–40%
+- Transactional / confirmation emails: 40–50%
+- Product newsletters: 25–35%
+- Re-engagement: 15–20%
+
+HIGH-PERFORMING CUSTOMER SUBJECT LINE PATTERNS:
+- Warm and personal: "A thank you from us" / "You've unlocked something new"
+- Exclusive access: "[Community name] — your seat is ready"
+- Product highlights with edition/date: "Product Updates: June Edition"
+- Event confirmations: "Your registration is confirmed ✅"
+- First-name personalization on warm moments
+
+LOW-PERFORMING PATTERNS:
+- Compliance / risk angle with existing users — they already bought in
+- "Final reminder" urgency — feels punishing for paying customers
+- Generic feature announcements with no user context
+- Bracket urgency: [Final Invitation], [Last Chance]
+
+KEY RULES:
+- Customers open more but are burned by tone-deaf sales language
+- Relationship and exclusivity outperform acquisition framing
+- Personalization tokens significantly boost warm email performance
+- Don't sell to people who already bought — serve them
+- Audience: existing SaaS users — operators, power users, admins, executives
+
+Respond ONLY with valid JSON. No markdown, no preamble.
+
+{
+  "score": <integer 0-100>,
+  "grade": "<Needs Work | Decent | Strong | Excellent>",
+  "summary": "<2 sentence punchy assessment>",
+  "predicted_open_rate": "<range like '32–40%'>",
+  "benchmark_note": "<one sentence vs 35-40% B2B SaaS customer avg>",
+  "dimensions": [
+    { "name": "Clarity", "score": <0-10>, "note": "<1 sentence>" },
+    { "name": "Personalization", "score": <0-10>, "note": "<1 sentence — does it feel tailored to existing users?>" },
+    { "name": "Curiosity", "score": <0-10>, "note": "<1 sentence>" },
+    { "name": "Mobile Length", "score": <0-10>, "note": "<1 sentence about char count>" },
+    { "name": "Spam Risk", "score": <0-10>, "note": "<1 sentence — 10 = no risk>" },
+    { "name": "Relationship Fit", "score": <0-10>, "note": "<1 sentence — does it respect they're already a customer?>" }
+  ],
+  "rewrites": [
+    { "label": "Warm", "text": "<rewrite 1 — relationship-first tone>" },
+    { "label": "Exclusive", "text": "<rewrite 2 — VIP/community angle>" },
+    { "label": "Clear Value", "text": "<rewrite 3 — direct product/event value>" }
+  ]
+}`;
+
+function setAudience(type) {
+  currentAudience = type;
+  const prospectBtn = document.getElementById('prospectBtn');
+  const customerBtn = document.getElementById('customerBtn');
+  const inputCard = document.getElementById('inputCard');
+  const gradeBtn = document.getElementById('gradeBtn');
+  const subjectInput = document.getElementById('subjectInput');
+
+  if (type === 'prospect') {
+    prospectBtn.className = 'toggle-btn active-prospect';
+    customerBtn.className = 'toggle-btn';
+    inputCard.className = 'input-card prospect';
+    gradeBtn.className = 'grade-btn';
+    subjectInput.className = '';
+    document.getElementById('loadingText').textContent = 'Analyzing against B2B SaaS prospect benchmarks…';
+    document.getElementById('spinner').className = 'spinner';
+    document.getElementById('benchmarkAvg').textContent = '23%';
+  } else {
+    customerBtn.className = 'toggle-btn active-customer';
+    prospectBtn.className = 'toggle-btn';
+    inputCard.className = 'input-card customer';
+    gradeBtn.className = 'grade-btn customer-btn';
+    subjectInput.className = 'customer-focus';
+    document.getElementById('loadingText').textContent = 'Analyzing against B2B SaaS customer benchmarks…';
+    document.getElementById('spinner').className = 'spinner customer';
+    document.getElementById('benchmarkAvg').textContent = '35–40%';
+  }
+
+  document.getElementById('results').classList.remove('active');
+  document.getElementById('errorCard').classList.remove('active');
+}
+
+const input = document.getElementById('subjectInput');
+const charCount = document.getElementById('charCount');
+
+input.addEventListener('input', () => {
+  const len = input.value.length;
+  charCount.textContent = len;
+  charCount.className = 'char-count' + (len > 60 ? ' warn' : '');
+});
+
+input.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); gradeSubject(); }
+});
+
+function getScoreColor(score) {
+  if (score >= 75) return 'great';
+  if (score >= 50) return 'good';
+  if (score >= 30) return '';
+  return 'poor';
+}
+
+function getDimColor(score) {
+  if (score >= 8) return 'great';
+  if (score >= 6) return 'green';
+  if (score >= 4) return '';
+  return 'pink';
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => showToast('Copied ✓'));
+}
+
+async function gradeSubject() {
+  const subject = input.value.trim();
+  if (!subject) return;
+
+  const btn = document.getElementById('gradeBtn');
+  const loading = document.getElementById('loading');
+  const results = document.getElementById('results');
+  const errorCard = document.getElementById('errorCard');
+
+  btn.disabled = true;
+  loading.classList.add('active');
+  results.classList.remove('active');
+  errorCard.classList.remove('active');
+
+  try {
+    const systemPrompt = currentAudience === 'prospect' ? PROSPECT_PROMPT : CUSTOMER_PROMPT;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: `Grade this email subject line: "${subject}"\n\nNote: this may be a rewrite or optimized version of a previously graded subject line. Grade it fairly and independently on its own merits — do not penalize it for being polished or concise. If it follows known high-performing patterns from the benchmark data, reflect that in the score.` }]
+      })
+    });
+
+    const data = await response.json();
+    const text = data.content.map(i => i.text || '').join('');
+    const clean = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+    renderResults(parsed);
+  } catch (err) {
+    errorCard.textContent = 'Something went wrong. Check your connection and try again.';
+    errorCard.classList.add('active');
+    console.error(err);
+  } finally {
+    loading.classList.remove('active');
+    btn.disabled = false;
+  }
+}
+
+function renderResults(d) {
+  const isCustomer = currentAudience === 'customer';
+
+  const badge = document.getElementById('audienceBadge');
+  badge.className = 'audience-badge ' + currentAudience;
+  badge.textContent = isCustomer ? '● Customer Mode' : '● Prospect Mode';
+
+  document.getElementById('scoreNum').textContent = d.score;
+  document.getElementById('scoreGrade').textContent = d.grade;
+  document.getElementById('scoreSummary').textContent = d.summary;
+
+  const arc = document.getElementById('scoreArc');
+  const circumference = 276.46;
+  arc.style.strokeDashoffset = circumference;
+  arc.className = 'score-fill ' + getScoreColor(d.score);
+  setTimeout(() => { arc.style.strokeDashoffset = circumference - (d.score / 100) * circumference; }, 100);
+
+  const gradeColors = { 'Excellent': '#7FD18A', 'Strong': '#7db85a', 'Decent': '#bb8306', 'Needs Work': '#ff8a80' };
+  document.getElementById('scoreGrade').style.color = gradeColors[d.grade] || 'white';
+
+  document.getElementById('benchmarkPredicted').textContent = d.predicted_open_rate;
+  document.getElementById('benchmarkNote').textContent = d.benchmark_note;
+
+  const dimContainer = document.getElementById('dimensions');
+  dimContainer.innerHTML = '';
+  d.dimensions.forEach((dim) => {
+    const pct = (dim.score / 10) * 100;
+    const colorClass = getDimColor(dim.score);
+    dimContainer.innerHTML += `
+      <div class="dim-card">
+        <div class="dim-top">
+          <span class="dim-name">${dim.name}</span>
+          <span class="dim-score">${dim.score}<span style="font-size:12px;color:var(--muted);font-family:'DM Sans'">/10</span></span>
+        </div>
+        <div class="dim-bar-track">
+          <div class="dim-bar-fill ${colorClass}" style="width:0%" data-width="${pct}%"></div>
+        </div>
+        <div class="dim-note">${dim.note}</div>
+      </div>`;
+  });
+  setTimeout(() => {
+    dimContainer.querySelectorAll('.dim-bar-fill').forEach(bar => { bar.style.width = bar.dataset.width; });
+  }, 150);
+
+  const tagColors = { 'Direct': '', 'Curious': 'green', 'Post-Action': 'brown', 'Warm': 'green', 'Exclusive': '', 'Clear Value': 'brown' };
+  const rewriteCard = document.getElementById('rewriteCard');
+  const rewriteLabel = document.getElementById('rewriteLabel');
+  const rewriteContainer = document.getElementById('rewriteOptions');
+
+  rewriteCard.className = 'rewrite-card' + (isCustomer ? ' customer' : '');
+  rewriteLabel.className = 'rewrite-label' + (isCustomer ? ' customer' : '');
+  rewriteContainer.innerHTML = '';
+
+  d.rewrites.forEach((rw) => {
+    const tagClass = tagColors[rw.label] || '';
+    rewriteContainer.innerHTML += `
+      <div class="rewrite-option ${isCustomer ? 'customer' : ''}" onclick="copyText('${rw.text.replace(/'/g, "\\'")}')">
+        <span class="rewrite-tag ${tagClass}">${rw.label}</span>
+        <div>
+          <div class="rewrite-text">${rw.text}</div>
+          <div class="copy-hint">Click to copy</div>
+        </div>
+      </div>`;
+  });
+
+  document.getElementById('results').classList.add('active');
+  document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+</script>
+</body>
+</html>
