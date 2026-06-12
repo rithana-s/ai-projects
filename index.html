@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Rithana's AI Projects</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --dark-canopy: #2E5526;
+    --forest-moss: #3B4A2F;
+    --green: #3A6B30;
+    --terracotta: #C4704A;
+    --warm-sand: #D9A97A;
+    --wheat: #E8D5B0;
+    --parchment: #F7F1E8;
+    --body-text: #3D2E1E;
+    --muted: #7A6A5A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--parchment);
+    color: var(--body-text);
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: #2E5526;
+    padding: 56px 48px 52px;
+    text-align: center;
+  }
+
+  .header-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--warm-sand);
+    margin-bottom: 16px;
+    opacity: 0.9;
+  }
+
+  .header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 48px;
+    color: var(--parchment);
+    line-height: 1.15;
+    margin-bottom: 14px;
+    font-style: normal;
+  }
+
+  .header-sub {
+    font-size: 16px;
+    color: var(--wheat);
+    opacity: 0.85;
+    max-width: 520px;
+    margin: 0 auto;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  /* ── MAIN ── */
+  main {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 64px 32px 100px;
+  }
+
+  /* ── GRID ── */
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  /* ── CARD ── */
+  .project-card {
+    background: #fff;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--wheat);
+    transition: transform 0.22s, box-shadow 0.22s;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .project-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 18px 48px rgba(42,53,32,0.11);
+  }
+
+  /* Thumbnail */
+  .card-thumb {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: var(--wheat);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .card-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .card-thumb-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    gap: 10px;
+  }
+
+  .card-thumb-placeholder .icon {
+    font-size: 36px;
+    opacity: 0.7;
+  }
+
+  .card-thumb-placeholder .placeholder-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+
+  /* Card body */
+  .card-body {
+    padding: 20px 22px 22px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    color: var(--forest-moss);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+
+  .card-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.7;
+    flex: 1;
+    margin-bottom: 18px;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 14px;
+    border-top: 1px solid var(--wheat);
+  }
+
+  .card-tag {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    background: #D8EDD0;
+    color: #1E4A18;
+  }
+
+  .card-link {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--terracotta);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: opacity 0.2s;
+  }
+
+  .card-link:hover { opacity: 0.75; }
+  .card-link.disabled {
+    color: var(--muted);
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: #2E5526;
+    padding: 32px 48px;
+    text-align: center;
+  }
+
+  .footer-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    color: var(--parchment);
+  }
+
+  .footer-name span {
+    font-style: italic;
+    color: var(--warm-sand);
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  header { animation: fadeUp 0.5s ease both; }
+  .project-card {
+    animation: fadeUp 0.5s ease both;
+  }
+  .project-card:nth-child(1) { animation-delay: 0.1s; }
+  .project-card:nth-child(2) { animation-delay: 0.15s; }
+  .project-card:nth-child(3) { animation-delay: 0.2s; }
+  .project-card:nth-child(4) { animation-delay: 0.25s; }
+  .project-card:nth-child(5) { animation-delay: 0.3s; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <h1 class="header-title">Rithana's AI Projects</h1>
+  <p class="header-sub">Artifacts, automations, and cool things I've built with AI.</p>
+</header>
+
+<!-- MAIN -->
+<main>
+  <div class="project-grid">
+
+    <!-- Card 1: Email Copywriter -->
+    <div class="project-card">
+      <div class="card-thumb" style="background: linear-gradient(135deg, #2A3520, #3A6B30);">
+        <div class="card-thumb-placeholder">
+          <span class="icon">✍️</span>
+          <span class="placeholder-label">Preview coming soon</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">Marketing Email Copywriter</h3>
+        <p class="card-desc">An AI-powered writing assistant that drafts marketing emails from a structured brief. Built with the Claude API — just fill in the details and get a polished first draft.</p>
+        <div class="card-footer">
+          <span class="card-tag">AI Tool</span>
+          <a class="card-link disabled" href="#">Coming soon</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Email Reporting Dashboard -->
+    <div class="project-card">
+      <div class="card-thumb" style="background: linear-gradient(135deg, #3B2A10, #C4704A);">
+        <div class="card-thumb-placeholder">
+          <span class="icon">📊</span>
+          <span class="placeholder-label">Preview coming soon</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">Email Reporting Dashboard</h3>
+        <p class="card-desc">A self-contained HTML dashboard built from email performance data exports. Includes KPI cards, trend charts, and an AI-generated subject line insights section.</p>
+        <div class="card-footer">
+          <span class="card-tag">AI Tool</span>
+          <a class="card-link disabled" href="#">Coming soon</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3: Subject Line Grader -->
+    <div class="project-card">
+      <div class="card-thumb" style="background: linear-gradient(135deg, #1A3A2A, #3A6B30);">
+        <div class="card-thumb-placeholder">
+          <span class="icon">🎯</span>
+          <span class="placeholder-label">Preview coming soon</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">Email Subject Line Grader</h3>
+        <p class="card-desc">Paste a subject line and get an instant AI-powered score grounded in real email benchmark data. Includes rewrite suggestions and a prospect vs. customer toggle.</p>
+        <div class="card-footer">
+          <span class="card-tag">AI Tool</span>
+          <a class="card-link disabled" href="#">Coming soon</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4: Prompt Rewriter -->
+    <div class="project-card">
+      <div class="card-thumb" style="background: linear-gradient(135deg, #2A1A3A, #7A4A9A);">
+        <div class="card-thumb-placeholder">
+          <span class="icon">🔁</span>
+          <span class="placeholder-label">Preview coming soon</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">Prompt Rewriter</h3>
+        <p class="card-desc">A tool that takes a rough prompt and rewrites it into a cleaner, more effective version. Built to help non-technical teammates get better outputs from AI without learning prompt engineering from scratch.</p>
+        <div class="card-footer">
+          <span class="card-tag">AI Tool</span>
+          <a class="card-link disabled" href="#">Coming soon</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 5: UTM Link Generator -->
+    <div class="project-card">
+      <div class="card-thumb" style="background: linear-gradient(135deg, #3A2A10, #D9A97A);">
+        <div class="card-thumb-placeholder">
+          <span class="icon">🔗</span>
+          <span class="placeholder-label">Preview coming soon</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title">UTM Link Generator</h3>
+        <p class="card-desc">A clean, standalone tool for building properly formatted UTM tracking links. Designed to keep campaign data clean and consistent across teams, with built-in logging.</p>
+        <div class="card-footer">
+          <span class="card-tag">AI Tool</span>
+          <a class="card-link disabled" href="#">Coming soon</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <p class="footer-name">Rithana's <span>AI Portfolio</span></p>
+</footer>
+
+</body>
+</html>
