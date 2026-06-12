@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>UTM Link Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --forest: #21500e;
+    --green: #3A6B30;
+    --gold: #bb8306;
+    --dark-gold: #9a6c04;
+    --parchment: #F7F1E8;
+    --wheat: #E8D5B0;
+    --muted: #7A6A5A;
+    --brown: #3D2E1E;
+    --terracotta: #C4704A;
+    --warm-sand: #D9A97A;
+    --light-sage: #dce8dc;
+    --border: rgba(61,46,30,0.15);
+    --border-md: rgba(61,46,30,0.25);
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --text-primary: #2E1A0A;
+    --text-secondary: #3A6B30;
+    --text-muted: #7A6A5A;
+    --surface: #ffffff;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--parchment);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+  .card {
+    background: var(--surface);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    width: 100%;
+    max-width: 680px;
+    box-shadow: 0 2px 12px rgba(33,80,14,0.07);
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.75rem;
+  }
+  .logo {
+    width: 36px; height: 36px;
+    background: var(--forest);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .logo svg { width: 18px; height: 18px; fill: var(--gold); }
+  .header-text h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; font-weight: 600;
+    color: var(--text-primary);
+  }
+  .header-text p { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  .section-label {
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 10px; margin-top: 1.5rem;
+  }
+  .field-group { display: flex; flex-direction: column; margin-bottom: 14px; }
+  .field-group label {
+    font-size: 13px; color: var(--text-secondary);
+    margin-bottom: 5px; font-weight: 600;
+  }
+  .field-group label .req { color: var(--forest); margin-left: 2px; }
+  .field-group label .opt { font-size: 11px; color: var(--muted); margin-left: 4px; font-weight: 400; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  input[type="text"], select {
+    width: 100%; height: 38px;
+    font-size: 14px; font-family: 'Nunito', sans-serif;
+    border: 0.5px solid var(--border-md);
+    border-radius: var(--radius-md);
+    padding: 0 12px;
+    background: var(--surface);
+    color: var(--text-primary);
+    appearance: none; -webkit-appearance: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237A6A5A'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+  input[type="text"]:focus, select:focus {
+    outline: none;
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(58,107,48,0.1);
+  }
+  input[type="text"]::placeholder { color: var(--text-muted); }
+
+  .warning {
+    font-size: 12px; color: var(--dark-gold);
+    margin-top: 5px; display: none;
+    padding: 6px 10px;
+    background: #fdf5e4;
+    border-radius: 6px;
+    border-left: 3px solid var(--gold);
+  }
+  hr.divider {
+    border: none; border-top: 0.5px solid var(--border); margin: 1.5rem 0 0;
+  }
+
+  .btn-row { display: flex; align-items: center; gap: 10px; margin-top: 1.5rem; }
+  .btn-generate {
+    background: var(--forest); color: var(--gold);
+    border: none; border-radius: var(--radius-md);
+    padding: 0 20px; height: 40px;
+    font-size: 14px; font-weight: 700; font-family: 'Nunito', sans-serif;
+    cursor: pointer; letter-spacing: 0.03em; transition: background 0.15s;
+  }
+  .btn-generate:hover { background: var(--green); }
+
+  .btn-copy {
+    background: transparent; border: 0.5px solid var(--border-md);
+    border-radius: var(--radius-md); padding: 0 16px; height: 38px;
+    font-size: 13px; font-family: 'Nunito', sans-serif;
+    cursor: pointer; color: var(--text-secondary); font-weight: 600;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    display: none;
+  }
+  .btn-copy:hover { background: var(--light-sage); }
+  .btn-copy.copied { border-color: var(--green); color: var(--green); }
+
+  .btn-reset {
+    background: transparent; border: 0.5px solid rgba(196,112,74,0.3);
+    border-radius: var(--radius-md); padding: 0 16px; height: 38px;
+    font-size: 13px; font-family: 'Nunito', sans-serif;
+    cursor: pointer; color: var(--terracotta); font-weight: 600;
+    transition: background 0.15s; display: none; margin-left: auto;
+  }
+  .btn-reset:hover { background: #fde8dc; }
+
+  .output-box {
+    margin-top: 1.25rem;
+    background: var(--light-sage);
+    border: 0.5px solid #a8c8a8;
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+    display: none;
+  }
+  .output-label {
+    font-size: 10.5px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--green); margin-bottom: 10px;
+  }
+  .output-url {
+    font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+    font-size: 12.5px; color: var(--text-primary);
+    word-break: break-all; line-height: 1.7;
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: var(--radius-md); padding: 12px 14px;
+  }
+  .output-url .param-key { color: var(--forest); font-weight: 700; }
+  .output-url .param-val { color: var(--green); }
+  .output-url .base { color: var(--muted); }
+  .output-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+  .char-count { font-size: 11px; color: var(--green); }
+
+  @media (max-width: 520px) {
+    .field-row { grid-template-columns: 1fr; }
+    .card { padding: 1.25rem; }
+  }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <div class="header">
+    <div class="logo">
+      <svg viewBox="0 0 20 20"><path d="M3 3h6v6H3zm8 0h6v6h-6zM3 11h6v6H3zm8 3a3 3 0 1 0 6 0 3 3 0 0 0-6 0"/></svg>
+    </div>
+    <div class="header-text">
+      <h1>UTM Link Builder</h1>
+      <p>Governed parameters only &nbsp;·&nbsp; keeps your campaign data clean and consistent</p>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label>Destination URL <span class="req">*</span></label>
+    <input type="text" id="base-url" placeholder="https://yoursite.com/page" />
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">Required parameters</div>
+
+  <div class="field-row">
+    <div class="field-group">
+      <label>utm_source <span class="req">*</span></label>
+      <select id="utm-source">
+        <option value="">Select source…</option>
+        <optgroup label="Social platforms">
+          <option value="linkedin">linkedin</option>
+          <option value="facebook">facebook</option>
+          <option value="instagram">instagram</option>
+          <option value="youtube">youtube</option>
+          <option value="x">x</option>
+          <option value="bluesky">bluesky</option>
+          <option value="tiktok">tiktok</option>
+          <option value="reddit">reddit</option>
+          <option value="pinterest">pinterest</option>
+        </optgroup>
+        <optgroup label="Search engines">
+          <option value="google">google</option>
+          <option value="bing">bing</option>
+        </optgroup>
+        <optgroup label="Owned distribution">
+          <option value="hubspot">hubspot</option>
+          <option value="gong">gong</option>
+          <option value="gmail">gmail</option>
+          <option value="website">website</option>
+          <option value="zoom">zoom</option>
+          <option value="direct_mail">direct_mail</option>
+        </optgroup>
+        <optgroup label="Partners">
+          <option value="partner_newsletter">partner_newsletter</option>
+          <option value="partner_event">partner_event</option>
+          <option value="partner_website">partner_website</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <div class="field-group">
+      <label>utm_medium <span class="req">*</span></label>
+      <select id="utm-medium">
+        <option value="">Select medium…</option>
+        <option value="social">social — organic social</option>
+        <option value="paid_social">paid_social — LinkedIn/Meta ads</option>
+        <option value="paid_search">paid_search — Google/Bing ads</option>
+        <option value="email">email — owned marketing email</option>
+        <option value="partner_email">partner_email — co-marketing email</option>
+        <option value="sponsored_email">sponsored_email — paid eblasts</option>
+        <option value="paid_media">paid_media — non-social display/sponsored</option>
+        <option value="event">event — webinars, conferences, QR</option>
+        <option value="direct_mail">direct_mail — postcards, gifts, dimensional</option>
+        <option value="sales_outreach">sales_outreach — SDR/AE 1:1 outreach</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="field-group">
+    <label>utm_campaign <span class="req">*</span></label>
+    <input type="text" id="utm-campaign" placeholder="e.g. 2026-06_email_product-launch" />
+    <div class="warning" id="campaign-warn">Use lowercase with underscores. Format: year-month-day_initiative_detail</div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">Optional parameters</div>
+
+  <div class="field-row">
+    <div class="field-group">
+      <label>utm_content <span class="opt">optional</span></label>
+      <select id="utm-content">
+        <option value="">None</option>
+        <option value="single_image">single_image</option>
+        <option value="carousel">carousel</option>
+        <option value="video">video</option>
+        <option value="text_link">text_link</option>
+        <option value="cta_header">cta_header</option>
+        <option value="cta_footer">cta_footer</option>
+        <option value="banner">banner</option>
+        <option value="qr_code">qr_code</option>
+      </select>
+    </div>
+    <div class="field-group">
+      <label>utm_term <span class="opt">optional — paid search only</span></label>
+      <input type="text" id="utm-term" placeholder="e.g. marketing_automation" />
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-generate" onclick="generateUTM()">Generate Link</button>
+    <button class="btn-copy" id="copy-btn" onclick="copyUTM()">Copy link</button>
+    <button class="btn-reset" id="reset-btn" onclick="resetForm()">Reset all</button>
+  </div>
+
+  <div class="output-box" id="output-box">
+    <div class="output-label">Generated UTM link</div>
+    <div class="output-url" id="output-url"></div>
+    <div class="output-footer">
+      <span class="char-count" id="char-count"></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function sanitizeCampaign(val) {
+  return val.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_\-.]/g, '');
+}
+
+function generateUTM() {
+  const url = document.getElementById('base-url').value.trim();
+  const src = document.getElementById('utm-source').value;
+  const medRaw = document.getElementById('utm-medium').value;
+  const med = medRaw.split(' — ')[0];
+  const camp = sanitizeCampaign(document.getElementById('utm-campaign').value.trim());
+  const contBase = document.getElementById('utm-content').value;
+  const term = sanitizeCampaign(document.getElementById('utm-term').value.trim());
+  const cont = contBase;
+
+  if (!url || !src || !med || !camp) {
+    alert('Please fill in destination URL, source, medium, and campaign name.');
+    return;
+  }
+
+  const base = url.includes('?') ? url + '&' : url + '?';
+  let params = `utm_source=${src}&utm_medium=${med}&utm_campaign=${camp}`;
+  if (cont) params += `&utm_content=${cont}`;
+  if (term) params += `&utm_term=${term}`;
+  const full = base + params;
+
+  const el = document.getElementById('output-url');
+  el.innerHTML = `<span class="base">${url}?</span>` +
+    params.split('&').map((p, i) => {
+      const [k, v] = p.split('=');
+      return `<span class="param-key">${i > 0 ? '&' : ''}${k}</span>=<span class="param-val">${v}</span>`;
+    }).join('');
+
+  document.getElementById('char-count').textContent = `${full.length} characters`;
+  document.getElementById('output-box').style.display = 'block';
+  document.getElementById('copy-btn').style.display = 'inline-block';
+  document.getElementById('copy-btn').textContent = 'Copy link';
+  document.getElementById('copy-btn').className = 'btn-copy';
+  document.getElementById('reset-btn').style.display = 'inline-block';
+  document.querySelector('.btn-generate').textContent = 'Regenerate';
+}
+
+function copyUTM() {
+  const url = document.getElementById('base-url').value.trim();
+  const src = document.getElementById('utm-source').value;
+  const med = document.getElementById('utm-medium').value.split(' — ')[0];
+  const camp = sanitizeCampaign(document.getElementById('utm-campaign').value.trim());
+  const contBase = document.getElementById('utm-content').value;
+  const term = sanitizeCampaign(document.getElementById('utm-term').value.trim());
+  const cont = contBase;
+  const base = url.includes('?') ? url + '&' : url + '?';
+  let params = `utm_source=${src}&utm_medium=${med}&utm_campaign=${camp}`;
+  if (cont) params += `&utm_content=${cont}`;
+  if (term) params += `&utm_term=${term}`;
+  const fullURL = base + params;
+
+  const btn = document.getElementById('copy-btn');
+  function onSuccess() {
+    btn.textContent = 'Copied!';
+    btn.className = 'btn-copy copied';
+    setTimeout(() => { btn.textContent = 'Copy link'; btn.className = 'btn-copy'; }, 2000);
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(fullURL).then(onSuccess).catch(() => fallbackCopy(fullURL, onSuccess));
+  } else {
+    fallbackCopy(fullURL, onSuccess);
+  }
+}
+
+function fallbackCopy(text, onSuccess) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try { document.execCommand('copy'); onSuccess(); }
+  catch(e) { alert('Copy failed — please select and copy the link manually.'); }
+  document.body.removeChild(ta);
+}
+
+function resetForm() {
+  ['base-url','utm-source','utm-medium','utm-campaign','utm-content','utm-term'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('campaign-warn').style.display = 'none';
+  document.getElementById('output-box').style.display = 'none';
+  document.getElementById('copy-btn').style.display = 'none';
+  document.getElementById('reset-btn').style.display = 'none';
+  document.querySelector('.btn-generate').textContent = 'Generate Link';
+}
+
+document.getElementById('utm-campaign').addEventListener('input', () => {
+  const val = document.getElementById('utm-campaign').value;
+  document.getElementById('campaign-warn').style.display = (val && /[A-Z\s]/.test(val)) ? 'block' : 'none';
+});
+
+
+</script>
+</body>
+</html>
